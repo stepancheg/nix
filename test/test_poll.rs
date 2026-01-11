@@ -25,14 +25,14 @@ fn test_poll() {
     // Poll an idle pipe.  Should timeout
     let nfds = loop_while_eintr!(poll(&mut fds, PollTimeout::from(100u8)));
     assert_eq!(nfds, 0);
-    assert!(!fds[0].revents().unwrap().contains(PollFlags::POLLIN));
+    assert!(!fds[0].revents().contains(PollFlags::POLLIN));
 
     write(&w, b".").unwrap();
 
     // Poll a readable pipe.  Should return an event.
     let nfds = poll(&mut fds, PollTimeout::from(100u8)).unwrap();
     assert_eq!(nfds, 1);
-    assert!(fds[0].revents().unwrap().contains(PollFlags::POLLIN));
+    assert!(fds[0].revents().contains(PollFlags::POLLIN));
 }
 
 // ppoll(2) is the same as poll except for how it handles timeouts and signals.
@@ -53,14 +53,14 @@ fn test_ppoll() {
     let sigset = SigSet::empty();
     let nfds = loop_while_eintr!(ppoll(&mut fds, Some(timeout), Some(sigset)));
     assert_eq!(nfds, 0);
-    assert!(!fds[0].revents().unwrap().contains(PollFlags::POLLIN));
+    assert!(!fds[0].revents().contains(PollFlags::POLLIN));
 
     write(&w, b".").unwrap();
 
     // Poll a readable pipe.  Should return an event.
     let nfds = ppoll(&mut fds, Some(timeout), None).unwrap();
     assert_eq!(nfds, 1);
-    assert!(fds[0].revents().unwrap().contains(PollFlags::POLLIN));
+    assert!(fds[0].revents().contains(PollFlags::POLLIN));
 }
 
 #[test]

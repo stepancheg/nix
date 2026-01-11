@@ -58,28 +58,26 @@ impl<'fd> PollFd<'fd> {
 
     /// Returns the events that occurred in the last call to `poll` or `ppoll`.  Will only return
     /// `None` if the kernel provides status flags that Nix does not know about.
-    pub fn revents(&self) -> Option<PollFlags> {
-        PollFlags::from_bits(self.pollfd.revents)
+    pub fn revents(&self) -> PollFlags {
+        PollFlags::from_bits_retain(self.pollfd.revents)
     }
 
-    /// Returns if any of the events of interest occured in the last call to `poll` or `ppoll`. Will
-    /// only return `None` if the kernel provides status flags that Nix does not know about.
+    /// Returns if any of the events of interest occured in the last call to `poll` or `ppoll`.
     ///
-    /// Equivalent to `x.revents()? != PollFlags::empty()`.
+    /// Equivalent to `x.revents() != PollFlags::empty()`.
     ///
     /// This is marginally more efficient than [`PollFd::all`].
-    pub fn any(&self) -> Option<bool> {
-        Some(self.revents()? != PollFlags::empty())
+    pub fn any(&self) -> bool {
+        self.revents() != PollFlags::empty()
     }
 
-    /// Returns if all the events of interest occured in the last call to `poll` or `ppoll`. Will
-    /// only return `None` if the kernel provides status flags that Nix does not know about.
+    /// Returns if all the events of interest occured in the last call to `poll` or `ppoll`.
     ///
-    /// Equivalent to `x.revents()? & x.events() == x.events()`.
+    /// Equivalent to `x.revents() & x.events() == x.events()`.
     ///
     /// This is marginally less efficient than [`PollFd::any`].
-    pub fn all(&self) -> Option<bool> {
-        Some(self.revents()? & self.events() == self.events())
+    pub fn all(&self) -> bool {
+        self.revents() & self.events() == self.events()
     }
 
     /// The events of interest for this `PollFd`.
